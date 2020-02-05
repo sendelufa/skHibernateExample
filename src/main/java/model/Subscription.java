@@ -7,6 +7,9 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -16,10 +19,10 @@ public class Subscription {
   @EmbeddedId
   private PK id;
 
-  @Column(name = "student_id")
+  @Column(name = "student_id", insertable = false, updatable = false)
   private int studentId;
 
-  @Column(name = "course_id")
+  @Column(name = "course_id", insertable = false, updatable = false)
   private int courseId;
 
   @Column(name = "subscription_date")
@@ -50,30 +53,53 @@ public class Subscription {
     this.subscriptionDate = subscriptionDate;
   }
 
-}
 
-@Embeddable
-class PK implements Serializable {
+  @Embeddable
+  public static class PK implements Serializable {
 
-  int course_Id;
-  int student_Id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id")
+    private Student student;
 
-  @Override
-  public boolean equals(Object o) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course_id")
+    private Course course;
+
+
+    public PK(Student student, Course course) {
+      this.student = student;
+      this.course = course;
+    }
+
+    public PK() {
+    }
+
+
+    public Student getStudent() {
+      return student;
+    }
+
+    public Course getCourse() {
+      return course;
+    }
+
+    @Override
+    public boolean equals(Object o) {
       if (this == o) {
-          return true;
+        return true;
       }
       if (o == null || getClass() != o.getClass()) {
-          return false;
+        return false;
       }
-    PK pk = (PK) o;
-    return course_Id == pk.course_Id &&
-        student_Id == pk.student_Id;
-  }
+      PK pk = (PK) o;
+      return Objects.equals(getStudent(), pk.getStudent()) &&
+          Objects.equals(getCourse(), pk.getCourse());
+    }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(course_Id, student_Id);
+    @Override
+    public int hashCode() {
+      return Objects.hash(getStudent(), getCourse());
+    }
   }
 }
 

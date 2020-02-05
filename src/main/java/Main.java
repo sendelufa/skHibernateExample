@@ -1,9 +1,9 @@
-import java.util.List;
 import model.Course;
 import model.Purchase;
 import model.Purchase.PkPurchase;
 import model.Student;
 import model.Subscription;
+import model.Subscription.PK;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -33,8 +33,13 @@ public class Main {
     System.out.println(course);
 
     //print info about selected purchase
-    Purchase purchase = session.get(Purchase.class, new PkPurchase(course.getName(), student.getName()));
+    Purchase purchase = session
+        .get(Purchase.class, new PkPurchase(course.getName(), student.getName()));
     System.out.println(purchase);
+
+    //print info about selected subscription
+    Subscription subscription = session.get(Subscription.class, new PK(student, course));
+    System.out.println(subscription.getSubscriptionDate());
 
     transaction.commit();
     sessionFactory.close();
